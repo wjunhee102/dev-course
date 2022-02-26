@@ -29,3 +29,13 @@ npm start
 ### 리뷰
 
 👉 [Wiki](https://github.com/choejoonkyung/programmers-cat-album./wiki)
+
+```
+
+  app
+  |-> dashboard
+      |-> directory 
+      |-> photo
+           |-modal-window
+
+```

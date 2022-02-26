@@ -1,13 +1,18 @@
+import { createElement } from "./core.js";
+
 export default class Sample {
 
   $target = null
 
   constructor($target) {
-      this.$target = $target
+      this.$target = $target;
 
-      const $h1 = document.createElement('h1')
-      $h1.innerText = '샘플 프로젝트2'
+      const $sample = createElement("h1", "테스트입니다.");
+      const $sample2 = (children) => createElement("h2", children);
+      $sample.className = "sample";
 
-      $target.appendChild($h1)
+      if($target) $target.appendChild($sample2($sample));
   }
+
+  
 }
