@@ -1,8 +1,9 @@
 export default class Node {
-  constructor({ $app, initialState, onClick }) {
+  constructor({ $app, initialState, onClick, onBackClick }) {
     this.state = initialState;
     this.$target = document.createElement("ul");
     this.onClick = onClick;
+    this.onBackClick = onBackClick;
     $app.appendChild(this.$target);
     this.render();
   }
@@ -34,7 +35,9 @@ export default class Node {
     this.$target.querySelectorAll(".Node").forEach(($node) => {
       $node.addEventListener("click", () => {
         const { nodeId } = $node.dataset;
-
+        if (!nodeId) {
+          this.onBackClick();
+        }
         const selectedNode = this.state.nodes.find(
           (node) => node.id === nodeId
         );

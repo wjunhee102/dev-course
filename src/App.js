@@ -20,6 +20,7 @@ export default class App {
         nodes: this.state.nodes,
       },
       onClick: (node) => this.clickNode(node),
+      onBackClick: () => this.backClick(),
     });
     this.init();
   }
@@ -68,6 +69,30 @@ export default class App {
     } catch (e) {}
   }
 
+  backClick() {
+    try {
+      const nextState = { ...this.state };
+      nextState.depth.pop();
+      const prevNodeId =
+        nextState.depth.length === 0
+          ? null
+          : nextState.depth[nextState.depth.length - 1].id;
+
+      if (prevNodeId === null) {
+        this.setState({
+          ...nextState,
+          isRoot: true,
+          nodes: cache.root,
+        });
+      } else {
+        this.setState({
+          ...nextState,
+          isRoot: false,
+          nodes: cache[prevNodeId],
+        });
+      }
+    } catch (e) {}
+  }
   async init() {
     try {
       const rootNodes = await request();
