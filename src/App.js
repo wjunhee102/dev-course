@@ -1,4 +1,5 @@
 import Breadcrumb from "./components/Breadcrumb.js";
+import Loading from "./components/Loading.js";
 import Nodes from "./components/Nodes.js";
 import { request } from "./utils/api.js";
 
@@ -22,6 +23,7 @@ export default class App {
       onClick: (node) => this.clickNode(node),
       onBackClick: () => this.backClick(),
     });
+    this.loading = new Loading({ $app, initialState: this.state.isLoading });
     this.init();
   }
   setState(nextState) {
@@ -31,8 +33,8 @@ export default class App {
       isRoot: this.state.isRoot,
       nodes: this.state.nodes,
     });
+    this.loading.setState(this.state.isLoading);
     // this.imageView.setState(this.state.selectedFilePath);
-    // this.loading.setState(this.state.isLoading);
   }
   async clickNode(node) {
     try {
