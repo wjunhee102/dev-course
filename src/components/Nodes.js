@@ -41,8 +41,6 @@ export default class Node {
         const selectedNode = this.state.nodes.find(
           (node) => node.id === nodeId
         );
-        console.log(selectedNode, "selectedNode");
-        console.log(nodeId, "nodeId");
         if (selectedNode) {
           this.onClick(selectedNode);
         }

@@ -4,6 +4,7 @@ import Nodes from "./components/Nodes.js";
 import { request } from "./utils/api.js";
 
 const cache = {};
+
 export default class App {
   constructor($app) {
     this.state = {
@@ -13,7 +14,11 @@ export default class App {
       selectedFilePath: null,
       isLoading: true,
     };
-    this.breadcrumb = new Breadcrumb({ $app, initialState: this.state.depth });
+    this.breadcrumb = new Breadcrumb({
+      $app,
+      initialState: this.state.depth,
+      onClick: (index) => this.clickPath(index),
+    });
     this.nodes = new Nodes({
       $app,
       initialState: {
@@ -35,6 +40,26 @@ export default class App {
     });
     this.loading.setState(this.state.isLoading);
     // this.imageView.setState(this.state.selectedFilePath);
+  }
+
+  clickPath(index) {
+    if (index === null) {
+      this.setState({
+        ...this.state,
+        depth: [],
+        nodes: cache.root,
+        isRoot: true,
+      });
+      return;
+    }
+
+    const nextState = { ...this.state };
+    const nextDepth = this.state.depth.slice(0, index + 1);
+    this.setState({
+      ...nextState,
+      depth: nextDepth,
+      nodes: cache[nextDepth[nextDepth.length - 1].id],
+    });
   }
   async clickNode(node) {
     try {
@@ -104,7 +129,6 @@ export default class App {
         nodes: rootNodes,
         isLoading: false,
       });
-      // 캐시에 추가
       cache.root = rootNodes;
     } catch (e) {
       console.log(e);

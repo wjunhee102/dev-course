@@ -1,18 +1,28 @@
 export default class Breadcrumb {
-  constructor({ $app, initialState }) {
-    this.state = initialState; //state가 depth인거임
-    this.$nav = document.createElement("nav"); // nav 바를 만들고
-    this.$nav.className = "Breadcrumb"; // nav className 설정
+  constructor({ $app, initialState, onClick }) {
+    this.state = initialState;
+    this.$nav = document.createElement("nav");
+    this.$nav.className = "Breadcrumb";
     this.$target = document.createElement("ul");
     this.$target.className = "ul";
-    $app.appendChild(this.$nav); // 이게 트리관계를 생성해줌
+    this.onClick = onClick;
+    $app.appendChild(this.$nav);
     this.$nav.appendChild(this.$target);
     this.render();
+
+    this.$target.addEventListener("click", (e) => {
+      const $navItem = e.target.closest(".nav-item");
+      if ($navItem) {
+        const { index } = $navItem.dataset;
+        this.onClick(index ? parseInt(index, 10) : null);
+      }
+    });
   }
   setState(nextState) {
     this.state = nextState;
     this.render();
   }
+
   render() {
     this.$target.innerHTML = `
     <li class="nav-item">root</li>${this.state
