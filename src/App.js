@@ -1,4 +1,5 @@
 import Breadcrumb from "./components/Breadcrumb.js";
+import ImageView from "./components/ImageView.js";
 import Loading from "./components/Loading.js";
 import Nodes from "./components/Nodes.js";
 import { request } from "./utils/api.js";
@@ -29,6 +30,11 @@ export default class App {
       onBackClick: () => this.backClick(),
     });
     this.loading = new Loading({ $app, initialState: this.state.isLoading });
+    this.imageView = new ImageView({
+      $app,
+      initialState: this.state.selectedNodeImage,
+      onClose: () => this.closeImageView(),
+    });
     this.init();
   }
   setState(nextState) {
@@ -39,9 +45,14 @@ export default class App {
       nodes: this.state.nodes,
     });
     this.loading.setState(this.state.isLoading);
-    // this.imageView.setState(this.state.selectedFilePath);
+    this.imageView.setState(this.state.selectedFilePath);
   }
-
+  closeImageView() {
+    this.setState({
+      ...this.state,
+      selectedFilePath: null,
+    });
+  }
   clickPath(index) {
     if (index === null) {
       this.setState({
