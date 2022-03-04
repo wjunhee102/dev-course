@@ -1,3 +1,7 @@
+import elementsList from './elements.js';
+
+const { div, createElements } = elementsList;
+
 function breadcrumb(props) {
     return `
         ${props.map(prop => `
@@ -38,7 +42,7 @@ function render(parentDom, element) {
         const $dom = type !== "TEXT_ELEMENT"? document.createElement(type) : document.createTextNode(""); 
         const eventKeyList = [];
         const propsKeyList = [];
-
+        console.log($dom);
         for(const key in props) {
             if(key.startsWith("on")) {
                 eventKeyList.push(key);
@@ -71,6 +75,32 @@ function render(parentDom, element) {
     }
 }
 
+function nodes(dataList)  {
+    if(!dataList) {
+        return createElement("div", {
+            className: "loading"
+        }, createElement("img", {
+            src: "./assets/nyan-cat.gif"
+        }));
+    }
+
+    return dataList.map(({
+                id, name, type, filePath, parent
+            }) => createElement("div", {
+                className: "Node",
+                onClick: () => {
+                    console.log(name);
+                }
+            }, 
+            createElement("img", {
+                src: type === DIRECTORY? "./assets/directory.png" :  filePath ,
+            }),
+            createElement("div", {
+
+            }, name)
+            ));
+}
+
 class App {
     rootDom = null;
     elements = null;
@@ -83,7 +113,18 @@ class App {
         this.elements = elements;
         this.breadCrumb = document.createElement("nav");
         this.nodes = document.createElement("div");
-        this.nodesRender = this.nodesRender.bind(this);
+    }
+
+    async getData() {
+        this.nodesRender();
+
+        const data = await fetch("https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev").then((res) => {
+            return res.json()
+        }).catch((error) => {
+            return res.error()
+        });
+
+        this.nodesRender(data);
     }
 
     breadCrumbRender() {
@@ -93,7 +134,7 @@ class App {
     nodesRender(nodeList) {
         this.nodes.innerHTML = "";
     
-        render(this.nodes, this.elements(nodeList));
+        render(this.nodes, nodes(nodeList));
     }
 
     render() {
@@ -101,6 +142,7 @@ class App {
             this.rootDom instanceof HTMLElement === false
             || !this.elements
         ) return this;
+            console.log(this.rootDom, this.breadCrumb);
 
         this.rootDom.appendChild(this.breadCrumb);
         this.rootDom.appendChild(this.nodes);
@@ -119,88 +161,58 @@ class App {
                 filePath: "./assets/file.png"
             }
         ]);
+
+        /**
+         * TODO Event
+         */
     }
 }
 
-const DIRECTORY = "DIRECTORY";
-const IMAGE_BASE_URL = "https://fe-dev-matching-2021-03-serverlessdeploymentbuck-t3kpj3way537.s3.ap-northeast-2.amazonaws.com/public";
-
-const subscribes = [];
-
-function dispatch(value) {
-    subscribes.forEach(sub => sub(value)); 
+let count = 1;
+function setCount(value) {
+    count = value;
+    main.render();
+    console.log(count);
 }
 
-const historyUrlList = [];
-
-async function getData(id) {
-  const index = historyUrlList.findIndex(history => history[0] === id);
-
-    if(index !== -1) {
-      dispatch(historyUrlList[index][1]);
-
-      return;
-    }  
-    dispatch();
-
-    const data = await fetch(`https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev/${id}`).then((res) => {
-        return res.json();
-    }).catch((error) => {
-        console.log(res.error());
-
-        return null;
-    });
-
-    if(data) historyUrlList.push([id, data]);
-
-    dispatch(data);    
-}
-
-
-function nodes(dataList)  {
-    if(!dataList) {
-        return createElement("div", {
-            className: "loading"
-        }, createElement("img", {
-            src: "./assets/nyan-cat.gif"
-        }));
-    }
-
-    return dataList.map(({
-            id, name, type, filePath, parent
-        }) => createElement("div", {
-            className: "Node",
-            onClick: () => {
-                if(type === DIRECTORY) {
-                    getData(id? id : "");
-                    if (typeof (history.pushState) != "undefined") { 
-                      history.pushState(state, title, url); 
-                    }
-                }
+function CountComponent() {
+    return div([count, []], {
+        className: "count",
+        eventList: [
+            {
+                className: "count",
+                type: "click",
+                callback: () => setCount(count + 1)
             }
-        }, 
-        createElement("img", {
-            src: type === DIRECTORY? "./assets/directory.png" :  `${IMAGE_BASE_URL}${filePath}` ,
-        }),
-        createElement("div", {
-
-        }, name)
-    ));
+        ]
+    })
 }
 
-const $main = document.querySelector("#App");
+[
+    {
+          "id": "1",
+          "name": "노란고양이",
+          "type": "DIRECTORY",
+          "filePath": null,
+          "parent": null
+      },
+      {
+          "id": "3",
+          "name": "까만고양이",
+          "type": "DIRECTORY",
+          "filePath": null,
+          "parent": null
+      }
+  ]
 
-const main = new App($main, nodes);
+  const DIRECTORY = "DIRECTORY";
+
+
+
+const $main = document.querySelector(".App");
+
+const main = new App($main, CountComponent);
 
 main.render();
 
-subscribes.push(main.nodesRender);
-
-
-function test() {
-  for(let i = 0; i < 100000; i++ ) {
-    console.log(i);
-  }
-}
-
-requestIdleCallback(test);
+main.getData();

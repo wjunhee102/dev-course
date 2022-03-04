@@ -14,12 +14,13 @@ export default class App {
   $target = null;
   elements = null;
   state = 0;
+  eventList = [];
 
   constructor(elements, $target) {
     this.$target = $target;
     this.elements = elements;
-
-    console.log(this);
+    this.setState = this.setState.bind(this);
+    this.setEventList = this.setEventList.bind(this);
   }
 
   setState(value) {
@@ -27,29 +28,18 @@ export default class App {
     this.render();
   }
 
+  setEventList(event) {
+    this.eventList.push(event);
+  }
+
   render() {
-    const state = 0;
-    const eventList = [];
+    if(this.$target instanceof HTMLElement && this.elements) this.$target.appendChild(this.elements(this.state, this.setState, this.setEventList));
 
-    const setEventList = (event) => {
-      eventList.push(event);
-    }
-
-    const setState =  function(value){
-      state = value;
-    }
-
-    if(this.$target instanceof HTMLElement && this.elements) this.$target.appendChild(this.elements(this.state, setState, setEventList));
-
-    this.setState(state);
-
-    if(eventList[0]) {
-      for(const { className, type, callback } of eventList) {
-        console.log(className);
+    if(this.eventList[0]) {
+      for(const { className, type, callback } of this.eventList) {
         const $dom = document.querySelector(`.${className}`);
 
         if($dom instanceof HTMLElement) {
-          $dom.removeEventListener(type);
           $dom.addEventListener(type, callback);
         }
 
