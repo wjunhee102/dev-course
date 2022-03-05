@@ -143,15 +143,9 @@ async function getData(id) {
     }  
     dispatch();
 
-    const data = await fetch(`https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev/${id}`).then((res) => {
-        return res.json();
-    }).catch((error) => {
-        console.log(res.error());
+    const data = await fetch(`https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev/${id}`)
 
-        return null;
-    });
-
-    if(data) historyUrlList.push([id, data]);
+    if(data) historyUrlList.push([id, data.json()]);
 
     dispatch(data);    
 }

@@ -1,11 +1,11 @@
-
+import { URL, IMAGE_BASE_URL, API_URL } from './src/utils/contants.js';
 
 function createNode({
   id, name, type, filePath, parent
 }) {
   return `
     <div class="Node">
-      <img src="${type ==="DIRECTORY"? "./assets/directory.png" : filePath}">
+      <img src="${type ==="DIRECTORY"? `${URL}assets/directory.png` : `${IMAGE_BASE_URL}${filePath}`}">
       <div>${name}</div>
     </div>
   `;
@@ -53,17 +53,33 @@ const dummyData2 = [
   },
 ]
 
-async function getNodeDataList(path, set) {
+async function getNodeDataList(path, set, errorCallback) {
   try {
-    const data = await fetch(`https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev/${path}`)
-                        .then((res) => res.json())
-                        .catch(e => new Error(e));
-    
+    const data = await fetch(`${API_URL}${path}`)
+                      .then((res) => res.json())
+                      .catch(e => new Error(e));
+
     if(set) set(data);
   } catch(e) {
-
+    // if(errorCallback) errorCallback(e);
+    const template = `<div className="error"> 에러입니다. </div>`
+    if(set) set(template);
   }
 
+}
+
+class Nodes {
+  dom = null;
+
+  constructor(className, ) {
+    this.dom = createElement("div");
+
+    this.dom.className = className;
+  }
+
+  getDom() {
+    return this.dom;
+  }
 }
 
 class App {
@@ -75,7 +91,7 @@ class App {
   nodeDataList = null;
   loadingTemplate = `<div class="Modal Loading">
                       <div class="content">
-                        <img src="./assets/nyan-cat.gif">
+                        <img src="${URL}assets/nyan-cat.gif">
                       </div>
                     </div>`;
 
@@ -105,7 +121,7 @@ class App {
 
     $backBtn.className = "Node";
     $backBtn.innerHTML = `
-      <img src="./assets/prev.png">
+      <img src="${URL}assets/prev.png">
     `;
 
     this.nodesDom.insertBefore($backBtn, this.nodesDom.childNodes[0]);
@@ -157,8 +173,7 @@ class App {
           console.log("이미지 팝업");
         }
       });
-    });
-    
+    });  
   
   }
 
@@ -194,7 +209,7 @@ class App {
   }
 
   breadCrumbRender(template) {
-    this.breadCrumbDom.innerHTML = template;
+    this.breadCrumbDom.innerHTML = `<div>root</div>${template}`;
   }
 
   render() {
