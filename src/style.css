@@ -65,6 +65,10 @@ body {
   content: "";
 }
 
+.hidden {
+  display: none;
+}
+
 .Modal {
   z-index: 1;
   width: 100%;
