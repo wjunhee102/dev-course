@@ -8,12 +8,10 @@ async function getNodeDataList(path, set, errorCallback) {
     const data = await fetch(`${API_URL}${path}`)
                       .then((res) => res.json())
                       .catch(e => new Error(e));
-
+  
     if(set) set(data);
   } catch(e) {
     if(errorCallback) errorCallback(e);
-
-    const template = `<div className="error"> 에러입니다. </div>`;
   }
 
 }
@@ -43,6 +41,7 @@ class App {
     this.closeModal = this.closeModal.bind(this);
     this.isLoading = this.isLoading.bind(this);
     this.openImageViewer = this.openImageViewer.bind(this);
+    this.openErrorPopup = this.openErrorPopup.bind(this);
   }
 
   setChildrenProps() {
@@ -56,6 +55,15 @@ class App {
       getPath: () => this.path,
       moveToTargetDirectory: this.moveToTargetDirectory
     });
+  }
+
+  setNodeDataList(data){
+    if(this.nodes) this.nodes.setData(data);
+  }
+
+  openErrorPopup() {
+    if(this.modal) this.modal.render("error 났습니다.", true);
+    this.moveToTargetDirectory("root"); 
   }
 
   pushRoute(path) {
@@ -81,7 +89,7 @@ class App {
         this.setNodeDataList(data);
         this.historyDataMap.set(id, data);
         this.closeModal();
-      });
+      }, (e) => { this.openErrorPopup() });
 
     }
   }
@@ -139,12 +147,8 @@ class App {
 
   openImageViewer(filePath) {
     return () => {
-      if(this.modal) this.modal.render(`${IMAGE_BASE_URL}${filePath}`, true);
+      if(this.modal) this.modal.openModal(`${IMAGE_BASE_URL}${filePath}`, true);
     } 
-  }
-
-  setNodeDataList(data){
-    if(this.nodes) this.nodes.setData(data);
   }
 
   closeModal() {
@@ -152,7 +156,7 @@ class App {
   }
 
   isLoading() {
-    if(this.modal) this.modal.render(this.isLoadingUrl);
+    if(this.modal) this.modal.openModal(this.isLoadingUrl);
   }
 
   render() {
@@ -172,13 +176,11 @@ class App {
       this.setNodeDataList(data);
       this.historyDataMap.set("root", data);
       this.closeModal();
-    });
+    }, (e) => { this.openErrorPopup() });
   }
 
 }
 
-const $main = document.getElementById("App");
-
-const main = new App($main);
+const main = new App(document.getElementById("App"));
 
 main.render();

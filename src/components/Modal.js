@@ -33,9 +33,13 @@ class Modal {
      });
   }
 
-  render(url, image) {
+  openModal(url, image) {
+    this.render(Modal.createElement(url), image);
+  }
+
+  render(template, image) {
     this.dom.className = `Modal ${image? "ImageViewer" : "Loading"}`;
-    this.dom.innerHTML = Modal.createElement(url);
+    this.dom.innerHTML = template;
   }
 
 }
